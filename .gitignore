@@ -1,0 +1,8 @@
+.vscode/
+
+tsconfig.tsbuildinfo
+node_modules/
+lib/*.d.ts
+lib/*.js
+
+secrets.json
