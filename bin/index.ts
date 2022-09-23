@@ -16,7 +16,7 @@ function sleep(ms: number): Promise<any> {
 async function runMonitor(): Promise<void> {
   const refreshRate = 10000; // ms
   const discordClient = new Discord();
-  const rpcUrl = 'https://evm.cronos.org/';
+  const rpcUrl = 'https://rpc.vvs.finance/';
   const provider = new providers.JsonRpcProvider(rpcUrl);
   const pk = Secrets[2];
   const wallet = new ethers.Wallet(pk, provider);
@@ -31,6 +31,7 @@ async function runMonitor(): Promise<void> {
     comparator: Comparator.greaterThan,
     watchPrice: 1.00,
   });
+  await sleep(100);
   new TokenPoller({
     darkPegMarket,
     discordClient,
@@ -39,6 +40,7 @@ async function runMonitor(): Promise<void> {
     comparator: Comparator.greaterThan,
     watchPrice: 1.00,
   });
+  await sleep(100);
   new TokenPoller({
     darkPegMarket,
     discordClient,
@@ -47,6 +49,7 @@ async function runMonitor(): Promise<void> {
     comparator: Comparator.greaterThan,
     watchPrice: 1.00,
   });
+  await sleep(100);
   new TokenPoller({
     darkPegMarket,
     discordClient,
@@ -57,7 +60,9 @@ async function runMonitor(): Promise<void> {
   });
 
   while (true) {
-    await sleep(2000);
+    await sleep(10000);
+    const now = new Date(Date.now());
+    console.log(`${now.toDateString()} ${now.toTimeString()}`);
   }
 }
 

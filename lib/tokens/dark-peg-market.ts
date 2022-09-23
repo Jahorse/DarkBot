@@ -10,10 +10,11 @@ import { darkPegMarketAbi } from './abi';
  * 3: EXPIRED
  */
 export enum Status {
-  NONE,
-  LOCKED,
-  READY,
-  EXPIRED,
+  NONE = 'NONE',
+  LOCKED = 'LOCKED',
+  READY = 'READY',
+  EXPIRED = 'EXPIRED',
+  UNKNOWN = 'UNKNOWN',
 }
 
 export interface UserInfo {
@@ -32,11 +33,11 @@ export interface IDarkPegMarket {
   getTradingInfo(token: string, amount: number): Promise<TradingInfo>;
 
   // WRITE
-  cancel(token: string): Promise<void>;
+  cancel(token: string): Promise<ethers.providers.TransactionResponse>;
 
-  deposit(token: string, amount: number): Promise<void>;
+  deposit(token: string, amount: number): Promise<ethers.providers.TransactionResponse>;
 
-  sell(token: string, amount: number): Promise<void>;
+  sell(token: string, amount: number): Promise<ethers.providers.TransactionResponse>;
 }
 
 export interface DarkPegMarketProps {
@@ -59,7 +60,7 @@ export class DarkPegMarket implements IDarkPegMarket {
     return this.contract.getUserInfo(token, await this.walletAddress)
       .then((i: any) => {
         return {
-          status: Status[i._status],
+          status: this.getStatus(i._status),
           deposited: parseInt(i._deposited.toString()),
         };
       });
@@ -75,15 +76,30 @@ export class DarkPegMarket implements IDarkPegMarket {
   }
 
   // WRITE
-  public async cancel(token: string): Promise<void> {
-    this.contract.cancel(token);
+  public async cancel(token: string): Promise<ethers.providers.TransactionResponse> {
+    return await (await this.contract.cancel(token)).wait(2);
   }
 
-  public async deposit(token: string, amount: number): Promise<void> {
-    this.contract.deposit(token, amount);
+  public async deposit(token: string, amount: number): Promise<ethers.providers.TransactionResponse> {
+    return await (await this.contract.deposit(token, amount)).wait(2);
   }
 
-  public async sell(token: string, amount: number): Promise<void> {
-    this.contract.sell(token, amount);
+  public async sell(token: string, amount: number): Promise<ethers.providers.TransactionResponse> {
+    return await (await this.contract.sell(token, amount, (amount * 0.8))).wait(2);
+  }
+
+  private getStatus(status: number): Status {
+    switch (status) {
+      case 0:
+        return Status.NONE;
+      case 1:
+        return Status.LOCKED;
+      case 2:
+        return Status.READY;
+      case 3:
+        return Status.EXPIRED;
+    }
+    console.log('Didn\'t find status');
+    return Status.UNKNOWN;
   }
 }

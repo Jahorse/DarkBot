@@ -2,7 +2,8 @@
 
 tsconfig.tsbuildinfo
 node_modules/
-lib/*.d.ts
-lib/*.js
+
+**/*.d.ts
+**/*.js
 
 secrets.json
